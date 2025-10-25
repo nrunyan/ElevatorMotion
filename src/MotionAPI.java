@@ -1,5 +1,5 @@
 public class MotionAPI {
-    private Direction direction=null;
+    public Direction direction=null;
     private Integer top_Alignment=null;
     private Integer bottom_Alignment=null;
 
