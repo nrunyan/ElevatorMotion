@@ -1,10 +1,11 @@
+package Hardware;
 public class Sensor {
     private boolean triggered=false;
-    public void setTriggered(boolean triggered){
+    public void set_triggered(boolean triggered){
         this.triggered=triggered;
     }
 
-    public boolean isTriggered() {
+    public boolean is_triggered() {
         return triggered;
     }
 }

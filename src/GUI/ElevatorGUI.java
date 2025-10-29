@@ -1,4 +1,7 @@
-import javafx.animation.AnimationTimer;
+package GUI;
+
+import Elevator_Controler.MotionAPI;
+import Util.Direction;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,7 +16,7 @@ public class ElevatorGUI extends Application {
 
 
     /**
-     * JOEL'S Constants
+     * JOEL'S Util.Constants
      *
      * Height between two sensors on the same floor: 3.0 meters
      * Floor thickness: 1.0 meters
@@ -23,11 +26,11 @@ public class ElevatorGUI extends Application {
      * Acceleration of the motor (same for start and stop): 0.3333333333333333 meters per second^2
      */
 
-    private MotionAPI motionAPI = new MotionAPI();
-    private Label directionLabel = new Label("direction:null");
-    private Label topAlignmentLabel = new Label("top_Aligned:null");
-    private Label bottomAlignmentLabel = new Label("bottom_Aligned:null");
-    private Rectangle elevatorCar;
+    private MotionAPI motion_API = new MotionAPI();
+    private Label direction_label = new Label("direction:null");
+    private Label top_alignment_label = new Label("top_Aligned:null");
+    private Label bottom_alignment_label = new Label("bottom_Aligned:null");
+    private Rectangle elevator_car;
     private Rectangle floor;
     private static final double SENSOR_HEIGHT=3.0;
     private static final double FLOOR_THICKNESS=1.0;
@@ -54,10 +57,10 @@ public class ElevatorGUI extends Application {
         shaftPane.setStyle("-fx-border-color: black; -fx-background-color: lightgray;");
 
         // CHANGE TO CONCAT GUI VIEWS INTO ONE
-        elevatorCar = new Rectangle(joelToJava(CAR_WIDTH), joelToJava(CAR_HEIGHT), Color.DARKGRAY);
-        elevatorCar.setLayoutX(10);
-        elevatorCar.setLayoutY(joelToJava(initialY));
-        shaftPane.getChildren().add(elevatorCar);
+        elevator_car = new Rectangle(joelToJava(CAR_WIDTH), joelToJava(CAR_HEIGHT), Color.DARKGRAY);
+        elevator_car.setLayoutX(10);
+        elevator_car.setLayoutY(joelToJava(initialY));
+        shaftPane.getChildren().add(elevator_car);
 
         Button upButton = new Button("Up");
         Button downButton = new Button("Down");
@@ -65,22 +68,22 @@ public class ElevatorGUI extends Application {
         Button stopButton = new Button("Stop");
 
         upButton.setOnAction(e -> {
-            motionAPI.setDirection(Direction.UP);
+            motion_API.set_direction(Direction.UP);
             redraw();
         });
 
         downButton.setOnAction(e -> {
-            motionAPI.setDirection(Direction.DOWN);
+            motion_API.set_direction(Direction.DOWN);
             redraw();
         });
 
         startButton.setOnAction(e -> {
-            motionAPI.start();
+            motion_API.start();
             move();
         });
 
         stopButton.setOnAction(e -> {
-            motionAPI.stop();
+            motion_API.stop();
             redraw();
         });
 
@@ -89,7 +92,7 @@ public class ElevatorGUI extends Application {
         buttonBox.setPadding(new Insets(10));
 
 
-        VBox statusBox = new VBox(5, directionLabel, topAlignmentLabel, bottomAlignmentLabel);
+        VBox statusBox = new VBox(5, direction_label, top_alignment_label, bottom_alignment_label);
         statusBox.setAlignment(Pos.CENTER_LEFT);
         statusBox.setPadding(new Insets(10));
 
@@ -109,7 +112,7 @@ public class ElevatorGUI extends Application {
      * Motion simulator
      */
     private void move() {
-        Direction dir = motionAPI.direction;
+        Direction dir = motion_API.direction;
         int bottom=310;
         int top=10; //We might want to make thes global constants
 //        // 1 second is 10^9
@@ -120,9 +123,9 @@ public class ElevatorGUI extends Application {
 
         if (dir == Direction.UP) {
             // this is just a placeholder irl we want some animation timer here
-            elevatorCar.setLayoutY(Math.max(top, elevatorCar.getLayoutY() - joelToJava(4.0)));
+            elevator_car.setLayoutY(Math.max(top, elevator_car.getLayoutY() - joelToJava(4.0)));
         } else if (dir == Direction.DOWN) {
-            elevatorCar.setLayoutY(Math.min(joelToJava(initialY), elevatorCar.getLayoutY() + joelToJava(4.0)));
+            elevator_car.setLayoutY(Math.min(joelToJava(initialY), elevator_car.getLayoutY() + joelToJava(4.0)));
         }
         redraw();
     }
@@ -132,9 +135,9 @@ public class ElevatorGUI extends Application {
      */
     private void redraw() {
 
-        directionLabel.setText("Direction: " + motionAPI.direction);
-        topAlignmentLabel.setText("Top Aligned: " + motionAPI.topAlignment());
-        bottomAlignmentLabel.setText("Bottom Aligned: " + motionAPI.bottomAlignment());
+        direction_label.setText("Util.Direction: " + motion_API.direction);
+        top_alignment_label.setText("Top Aligned: " + motion_API.top_alignment());
+        bottom_alignment_label.setText("Bottom Aligned: " + motion_API.bottom_alignment());
     }
 
     private double joelToJava(double meters){

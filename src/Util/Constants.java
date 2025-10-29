@@ -1,28 +1,30 @@
+package Util;
+
 /**
  * File for computing motor constants
  */
 
 public class Constants {
     // Distance between sensors on the same level (in meters)
-    private static final double HEIGHT = 3;
+    public static final double HEIGHT = 3;
 
     // Distance between sensors on distinct levels (in meters)
-    private static final double FLOOR_THICKNESS = 1;
+    public static final double FLOOR_THICKNESS = 1;
 
     // Maximum speed of elevator (meters per second)
-    private static final double MAX_SPEED = 1; // ~ 200 ft/minute
+    public static final double MAX_SPEED = 1; // ~ 200 ft/minute
 
     /* The distance the cabin travels while accelerating (from max speed to stop
      * or vice versa) in meters */
-    private static final double ACCELERATION_DIST = 1.5;
+    public static final double ACCELERATION_DIST = 1.5;
 
     /* Time it takes for the motor to fully accelerate the cabin from max speed
      * to stop or vice versa (seconds) */
-    private static final double ACCELERATION_TIME = 2 * ACCELERATION_DIST
+    public static final double ACCELERATION_TIME = 2 * ACCELERATION_DIST
             / MAX_SPEED;
 
     // Acceleration of the motor (same for start and stop) - meters per second^2
-    private static final double ACCELERATION = MAX_SPEED / ACCELERATION_TIME;
+    public static final double ACCELERATION = MAX_SPEED / ACCELERATION_TIME;
 
     /**
      * Acceleration needs to be large enough to  ensure two things:

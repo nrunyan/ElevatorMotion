@@ -1,13 +1,18 @@
+package Elevator_Controler;
+
+import Util.Direction;
+
 public class MotionAPI {
     public Direction direction=null;
     private Integer top_Alignment=null;
     private Integer bottom_Alignment=null;
 
+
     /**
      * Set directions of elevator
      * @param direction Up, down or null
      */
-    public void setDirection(Direction direction){
+    public void set_direction(Direction direction){
         this.direction=direction;
     }
 
@@ -15,7 +20,7 @@ public class MotionAPI {
      * Returns the floor that the top of elevator is aligned with
      * @return A floor number or null
      */
-    public Integer topAlignment(){
+    public Integer top_alignment(){
         return top_Alignment;
     }
 
@@ -23,7 +28,7 @@ public class MotionAPI {
      * Returns the floor that the bottom of elevator is aligned with
      * @return A floor number or null
      */
-    public Integer bottomAlignment(){
+    public Integer bottom_alignment(){
         return bottom_Alignment;
     }
 

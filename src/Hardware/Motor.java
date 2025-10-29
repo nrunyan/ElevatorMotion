@@ -1,3 +1,5 @@
+package Hardware;
+import Util.*;
 public class Motor {
     private boolean on;
     private Direction direction;
@@ -7,7 +9,7 @@ public class Motor {
     public void stop(){
         on=false;
     }
-    public void setDirection(Direction direction){
+    public void set_direction(Direction direction){
         this.direction=direction;
     }
 }
