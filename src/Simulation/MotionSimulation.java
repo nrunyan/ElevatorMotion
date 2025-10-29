@@ -12,11 +12,12 @@ import java.util.HashMap;
  * This class simulates motion, for demonstration purposes
  * will be deleted later and replaced with working software
  */
+//TODO: make actual test to demonstrate gui functionality
 public class MotionSimulation implements Runnable{
     // Convert floor indicator to Sensor
     private HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
     // Convert Sensors to y positions
-    private HashMap<Sensor, Double>  sensor_pos_Map = new HashMap<>();
+    private HashMap<Integer, Double>  sensor_pos_Map = new HashMap<>();
 
     // The motor object (to be replaced by Hardware)
     private Motor motor;
@@ -40,6 +41,9 @@ public class MotionSimulation implements Runnable{
     // How long the thread sleeps before updating position, velocity, etc.
     private final int SLEEP_MILLIS = 375;
 
+    // Top Level
+    private final int MAX_IDX = 20;
+
     /**
      * Makes a motion simulation
      */
@@ -48,6 +52,7 @@ public class MotionSimulation implements Runnable{
         elevator = new Elevator();
 
         // TODO initialize hashmaps, and sensors
+
 
     }
 
@@ -97,27 +102,58 @@ public class MotionSimulation implements Runnable{
         // Update sensors based on position and direction
         switch (direction){
             case UP:
+                // TODO: check this
                 int sensor_above_idx = top_idx + 1;
                 // Top sensor triggered
-                if (y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
+                if (sensor_above_idx != MAX_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
                     // Turn sensor above on
                     sensor_HashMap.get(sensor_above_idx).set_triggered(true);
 
-                    // Turn bottom sensor off
-                    sensor_HashMap.get(bottom_idx).set_triggered(false);
+                    // Turn bottom sensor off, if not already off
+                    if(bottom_idx!=-1){
+                        sensor_HashMap.get(bottom_idx).set_triggered(false);
+                    }
 
                     // Update bottom and top floor indices
                     bottom_idx = top_idx;
                     top_idx = sensor_above_idx;
+                    //TODO: snap elevator into place if stopped
 
                 // bottom sensor untriggered
-                } else if (sensor_pos_Map.get(bottom_idx) > y_pos_bottom){
+                } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) > y_pos_bottom){
                     // Turn off bottom sensor
+                    sensor_HashMap.get(bottom_idx).set_triggered(false);
+
+                    //set bottom id to none selected
+                    bottom_idx =-1;
 
                 }
                 break;
-            default:
+            case DOWN:
+                int sensor_bellow_idx= bottom_idx-1;
+                if(sensor_bellow_idx!=-1&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
+                    //top sensor untriggered
 
+
+                    sensor_HashMap.get(sensor_bellow_idx).set_triggered(true);
+
+                    // Turn top sensor off, if not already off
+                    if(top_idx!=-1){
+                        sensor_HashMap.get(top_idx).set_triggered(false);
+                    }
+
+                    //update triggered floor positions
+                    top_idx=bottom_idx;
+                    bottom_idx=sensor_bellow_idx;
+                    //TODO: if motor's off, snap elevator into place
+
+                } else if (top_idx!=-1&& sensor_pos_Map.get(top_idx)>y_pos_top) {
+                    // turn off top sensor
+                    sensor_HashMap.get(top_idx).set_triggered(true);
+                    top_idx=-1;
+                }
+            default:
+                // Elevator not moving
 
         }
 
