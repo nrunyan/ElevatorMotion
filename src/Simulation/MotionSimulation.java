@@ -15,15 +15,21 @@ import java.util.HashMap;
 //TODO: make actual test to demonstrate gui functionality
 public class MotionSimulation implements Runnable{
     // Convert floor indicator to Sensor
-    private HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
+    private final HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
     // Convert Sensors to y positions
-    private HashMap<Integer, Double>  sensor_pos_Map = new HashMap<>();
+    private final HashMap<Integer, Double>  sensor_pos_Map = new HashMap<>();
 
     // The motor object (to be replaced by Hardware)
-    private Motor motor;
+    private final Motor motor;
 
     // The elevator object (for simulation purposes)
-    private Elevator elevator;
+    private final Elevator elevator;
+
+    // How long the thread sleeps before updating position, velocity, etc.
+    private final int SLEEP_MILLIS = 375;
+
+    // Top Level
+    private final int MAX_SENSOR_IDX = 19;
 
     // The elevator's current speed
     private double current_speed=0.0;
@@ -38,12 +44,6 @@ public class MotionSimulation implements Runnable{
     private int top_idx = -1;
     private int bottom_idx = -1;
 
-    // How long the thread sleeps before updating position, velocity, etc.
-    private final int SLEEP_MILLIS = 375;
-
-    // Top Level
-    private final int MAX_IDX = 20;
-
     /**
      * Makes a motion simulation
      */
@@ -51,8 +51,20 @@ public class MotionSimulation implements Runnable{
         motor=new Motor();
         elevator = new Elevator();
 
-        // TODO initialize hashmaps, and sensors
+        // Initializing the Hash Maps
+        double y_pos = 0;
+        for (int i = 0; i <= MAX_SENSOR_IDX; i++) {
+            sensor_HashMap.put(i, new Sensor());
 
+            if (i % 2 == 0){
+                // Lower level sensor
+                y_pos += Constants.FLOOR_THICKNESS;
+            } else {
+                // Upper level sensor
+                y_pos += Constants.HEIGHT;
+            }
+            sensor_pos_Map.put(i, y_pos);
+        }
 
     }
 
@@ -105,7 +117,7 @@ public class MotionSimulation implements Runnable{
                 // TODO: check this
                 int sensor_above_idx = top_idx + 1;
                 // Top sensor triggered
-                if (sensor_above_idx != MAX_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
+                if (sensor_above_idx <= MAX_SENSOR_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
                     // Turn sensor above on
                     sensor_HashMap.get(sensor_above_idx).set_triggered(true);
 
