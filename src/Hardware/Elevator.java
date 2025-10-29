@@ -1,5 +1,9 @@
 package Hardware;
-public class Elevator {
+
+import Util.Observable;
+import Util.Observer;
+
+public class Elevator implements Observable {
     private double y_position;
     private double height;
     public double getY_position(){
@@ -7,13 +11,15 @@ public class Elevator {
     }
     public void set_y_position(double y_position){
         this.y_position=y_position;
-        //TODO: update observer
+        for (Observer o : observers) o.update(this);
     }
 
     public double upper_bound() {
         return height+y_position;
     }
-    public void subscribe(Object observer){
-        //TODO
+
+    @Override
+    public void subscribe(Observer subscriber) {
+        observers.add(subscriber);
     }
 }

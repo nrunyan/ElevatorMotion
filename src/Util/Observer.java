@@ -1,6 +1,6 @@
 package Util;
 
 public interface Observer {
-    public abstract void notify(Observable viewee);
+    public abstract void update(Observable viewee);
 
 }
