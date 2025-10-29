@@ -43,4 +43,12 @@ public class Motor implements Observable{
     public void subscribe(Observer subscriber) {
         observers.add(subscriber);
     }
+
+    /**
+     * Gets the direction of the motor
+     * @return
+     */
+    public Direction get_direction(){
+        return this.direction;
+    }
 }
