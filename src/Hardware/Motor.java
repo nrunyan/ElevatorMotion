@@ -1,19 +1,23 @@
 package Hardware;
 import Util.*;
-public class Motor {
+public class Motor implements Observable{
     private boolean on;
     private Direction direction;
     public void start(){
         on=true;
+        for (Observer o : observers) o.update(this);
     }
     public void stop(){
         on=false;
+        for (Observer o : observers) o.update(this);
     }
     public void set_direction(Direction direction){
         this.direction=direction;
-    }
-    public void subscribe(Object observer){
-        //TODO
+        for (Observer o : observers) o.update(this);
     }
 
+    @Override
+    public void subscribe(Observer subscriber) {
+        observers.add(subscriber);
+    }
 }
