@@ -20,4 +20,8 @@ public class Motor implements Observable{
     public void subscribe(Observer subscriber) {
         observers.add(subscriber);
     }
+
+    public Direction get_direction(){
+        return this.direction;
+    }
 }
