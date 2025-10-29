@@ -5,11 +5,14 @@ import Hardware.Motor;
 import Hardware.Sensor;
 
 import java.util.HashMap;
+import java.util.Timer;
 
 public class MotionSimulation {
     private HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
     private Motor motor;
     private Elevator elevator;
+    private double current_speed=0.0;
+    private Timer timer;
 
 
     public MotionSimulation(){
@@ -37,5 +40,14 @@ public class MotionSimulation {
 
     public Elevator get_elevator() {
         return elevator;
+    }
+
+    private void tick(){
+//        timer = new Timer();
+//        timer.wait();
+    }
+
+    public static void main(String[] args) {
+
     }
 }

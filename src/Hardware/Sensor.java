@@ -8,4 +8,7 @@ public class Sensor {
     public boolean is_triggered() {
         return triggered;
     }
+    public void subscribe(Object observer){
+        //TODO
+    }
 }

@@ -12,4 +12,8 @@ public class Motor {
     public void set_direction(Direction direction){
         this.direction=direction;
     }
+    public void subscribe(Object observer){
+        //TODO
+    }
+
 }

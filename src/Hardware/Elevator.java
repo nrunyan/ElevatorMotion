@@ -7,9 +7,13 @@ public class Elevator {
     }
     public void set_y_position(double y_position){
         this.y_position=y_position;
+        //TODO: update observer
     }
 
     public double upper_bound() {
         return height+y_position;
+    }
+    public void subscribe(Object observer){
+        //TODO
     }
 }
