@@ -1,3 +1,4 @@
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -39,7 +40,7 @@ public class ElevatorGUI extends Application {
     private static final double CAR_HEIGHT = 3.0;
     private static final int SHAFT_WIDTH = 100;
     private static final double CAR_WIDTH=3.0;
-    private static final double initialY=SHAFT_HEIGHT - CAR_HEIGHT - 10;
+    private static final double initialY=SHAFT_HEIGHT - CAR_HEIGHT;
 
     public static void main(String[] args) {
         launch(args);
@@ -52,6 +53,7 @@ public class ElevatorGUI extends Application {
         shaftPane.setPrefSize(SHAFT_WIDTH, SHAFT_HEIGHT);
         shaftPane.setStyle("-fx-border-color: black; -fx-background-color: lightgray;");
 
+        // CHANGE TO CONCAT GUI VIEWS INTO ONE
         elevatorCar = new Rectangle(joelToJava(CAR_WIDTH), joelToJava(CAR_HEIGHT), Color.DARKGRAY);
         elevatorCar.setLayoutX(10);
         elevatorCar.setLayoutY(joelToJava(initialY));
@@ -100,9 +102,8 @@ public class ElevatorGUI extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
-
     }
+
 
     /**
      * Motion simulator
@@ -111,6 +112,10 @@ public class ElevatorGUI extends Application {
         Direction dir = motionAPI.direction;
         int bottom=310;
         int top=10; //We might want to make thes global constants
+//        // 1 second is 10^9
+//        AnimationTimer animationTimer = new AnimationTimer() {
+//
+//        };
         if (dir == null) return;
 
         if (dir == Direction.UP) {
