@@ -8,6 +8,9 @@ import Hardware.*;
 public class SensorFX implements Observer {
     private Circle sen;
 
+    public SensorFX(Circle sen){
+        this.sen = sen;
+    }
     @Override
     public void update(Observable viewee) {
         if(viewee instanceof Sensor){
@@ -17,9 +20,5 @@ public class SensorFX implements Observer {
                 sen.setFill(Color.RED);
             }
         }
-    }
-
-    public void setSen(Circle sen) {
-        this.sen = sen;
     }
 }
