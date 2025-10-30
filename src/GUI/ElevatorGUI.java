@@ -2,7 +2,6 @@ package GUI;
 
 import Elevator_Controler.MotionAPI;
 import Util.*;
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -13,8 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
-import java.lang.classfile.constantpool.DoubleEntry;
 import java.util.HashMap;
 import Hardware.*;
 

@@ -1,6 +1,5 @@
 package Hardware;
 
-import GUI.ElevatorFX;
 import Util.Constants;
 import Util.Observable;
 import Util.Observer;
