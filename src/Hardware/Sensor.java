@@ -3,12 +3,17 @@ package Hardware;
 import Util.Observable;
 import Util.Observer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Authors: Natalie Runyan, Valerie Barker
  */
 public class Sensor implements Observable {
     //Weather or not the sensor is aligned with the elevator
     private boolean triggered=false;
+    //List of objects observing this object
+    List<Observer> observers = new ArrayList<>();
 
     /**
      * Sets the sensor trigger to true or false.

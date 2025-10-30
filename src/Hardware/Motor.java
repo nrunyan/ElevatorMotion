@@ -1,6 +1,9 @@
 package Hardware;
 import Util.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Authors: Natalie Runyan, Valerie Barker, Youssef Amin
  */
@@ -9,6 +12,8 @@ public class Motor implements Observable{
     private boolean on;
     //The direction the motor is running
     private Direction direction;
+    //List of objects observing this object
+    List<Observer> observers = new ArrayList<>();
 
     public Motor(){
         this.on = false;

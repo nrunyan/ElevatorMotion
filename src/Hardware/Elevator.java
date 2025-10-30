@@ -4,6 +4,9 @@ import Util.Constants;
 import Util.Observable;
 import Util.Observer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Authors: Natalie Runyan, Valerie Barker
  */
@@ -13,7 +16,8 @@ public class Elevator implements Observable {
     private double y_position;
     //The height of the elevator
     private double height;
-
+    //List of objects observing this object
+    List<Observer> observers = new ArrayList<>();
     public Elevator(){
         this.y_position = 0;
         this.height = Constants.HEIGHT;

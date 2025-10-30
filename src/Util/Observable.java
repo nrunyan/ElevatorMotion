@@ -8,8 +8,6 @@ import java.util.List;
  * Observable interface allows objects to be observed by other objects
  */
 public interface Observable {
-    //List of objects observing this object
-    List<Observer> observers = new ArrayList<>();
 
     /**
      * Subscribes an observer to this object. Subscribed objects are added to
