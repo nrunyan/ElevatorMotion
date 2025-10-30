@@ -17,7 +17,7 @@ public class ElevatorFX implements Observer{
     }
     @Override
     public void update(Observable viewee) {
-        //being passed sensor at some point????
+
 
         if(viewee instanceof Elevator){
             elly.setLayoutY(ElevatorGUI.joel_to_java(ElevatorGUI.SENSOR_HEIGHT + ElevatorGUI.SHAFT_HEIGHT -1/2 - ElevatorGUI.CAR_HEIGHT - ((Elevator) viewee).getY_position()));
