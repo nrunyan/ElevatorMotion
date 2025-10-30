@@ -1,3 +1,5 @@
+package Tests;
+
 import GUI.ElevatorGUI;
 import Simulation.MotionSimulation;
 import Util.Direction;
