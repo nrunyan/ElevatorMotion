@@ -82,46 +82,15 @@ public class MotionSimulation implements Runnable {
         boolean running=true;
         boolean sillyBoolean = true;
 
-        final double sillyTimeSorryVal = from_millis_to_seconds(SLEEP_MILLIS);
+        double sillyTimeSorryVal = from_millis_to_seconds(SLEEP_MILLIS);
 
         while (running) {
             update_sensors();
             try {
 
-                System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
+               // System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
 
-                if (accelerating_indicator != 0) {
-
-                    current_speed += Constants.ACCELERATION * sillyTimeSorryVal * accelerating_indicator;
-                } else {
-                    // no acceleration go towards zero
-                    if (current_speed != 0.0) {
-                        double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed);
-                        if (Math.abs(steppre) >= Math.abs(current_speed)) {
-                            current_speed = 0.0;
-                        } else {
-                            current_speed -= steppre;
-                        }
-                    }
-                }
-
-                //goes to max speed negative or positive
-                if (Math.abs(current_speed) > Constants.MAX_SPEED) {
-                    current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);  // bless you math.copytime
-                }
-
-                // current_speed now carries sign: positive -> up, negative -> down
-                if (current_speed != 0.0) {
-                    double deltaY = current_speed * sillyTimeSorryVal;
-                    //tell obsetcvers
-                    elevator.set_y_position(elevator.getY_position() + deltaY);
-                } else {
-                    //If we've come to a full stop and previously were decelerating, reset indicator
-                    if (accelerating_indicator < 0) {
-
-                        accelerating_indicator = 0;
-                    }
-                }
+                motion_updater_slash_neg(sillyTimeSorryVal);
                 update_sensors();
 
                 // kinda like loop timeing
@@ -138,7 +107,44 @@ public class MotionSimulation implements Runnable {
         update_sensors();
     }
 
+    private void motion_updater_slash_neg(double sillyTimeSorryVal) {
+        if (accelerating_indicator != 0) {
+
+            current_speed += Constants.ACCELERATION * sillyTimeSorryVal * accelerating_indicator;
+        } else {
+            // no acceleration go towards zero
+            if (current_speed != 0.0) {
+                double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed);
+                if (Math.abs(steppre) >= Math.abs(current_speed)) {
+                    current_speed = 0.0;
+                } else {
+                    current_speed -= steppre;
+                }
+            }
+        }
+
+        //goes to max speed negative or positive
+        if (Math.abs(current_speed) > Constants.MAX_SPEED) {
+            current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);  // bless you math.copytime
+        }
+
+        //positive->up, negative-> down
+        if (current_speed != 0.0) {
+            double deltaY = current_speed * sillyTimeSorryVal;
+            //tell obsetcvers
+            elevator.set_y_position(elevator.getY_position() + deltaY);
+        } else {
+            //If we've come to a full stop and previously were decelerating, reset indicator
+            if (accelerating_indicator < 0) {
+
+                accelerating_indicator = 0;
+            }
+        }
+    }
+
     private void update_sensors() {
+        double top=-1;
+        double bottom=-1;
         double yBottom = elevator.getY_position();
         double yTop = elevator.upper_bound();
 
@@ -147,10 +153,19 @@ public class MotionSimulation implements Runnable {
 
             if (sensorY+.5 >= yBottom && sensorY-.5 <= yTop) {
                 sensor_HashMap.get(idx).set_triggered(true);
+                if(bottom==-1){
+                    bottom=sensorY;
+                }else{
+                    top =sensorY;
+                }
             } else {
                 sensor_HashMap.get(idx).set_triggered(false);
             }
         }
+        if(motor.is_off()&&bottom>=0){
+            elevator.set_y_position(bottom);
+        }
+
     }
 
 

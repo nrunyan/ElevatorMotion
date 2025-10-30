@@ -46,7 +46,7 @@ public class ElevatorGUI {
     public static final double CAR_HEIGHT = Constants.HEIGHT;
     private static final int SHAFT_WIDTH = 100;
     private static final double CAR_WIDTH = CAR_HEIGHT;
-    private static final double initialY = SHAFT_HEIGHT - 1;
+    private static final double initialY = SHAFT_HEIGHT-1;
 
     private static final double MOTORRAD = 1.5;
     private Stage primaryStage;
@@ -194,27 +194,6 @@ public class ElevatorGUI {
 
     }
 
-    /**
-     * Motion simulator
-     */
-    private void move() {
-        Direction dir = motion_API.direction;
-        int bottom = 310;
-        int top = 10; //We might want to make thes global constants
-//        // 1 second is 10^9
-//        AnimationTimer animationTimer = new AnimationTimer() {
-//
-//        };
-        if (dir == null) return;
-
-        if (dir == Direction.UP) {
-            // this is just a placeholder irl we want some animation timer here
-            elevator_car.setLayoutY(Math.max(top, elevator_car.getLayoutY() - joel_to_java(4.0)));
-        } else if (dir == Direction.DOWN) {
-            elevator_car.setLayoutY(Math.min(joel_to_java(initialY), elevator_car.getLayoutY() + joel_to_java(4.0)));
-        }
-        redraw();
-    }
 
     /**
      * Any refresh actions here

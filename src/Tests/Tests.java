@@ -3,19 +3,26 @@ package Tests;
 import GUI.ElevatorGUI;
 import Simulation.MotionSimulation;
 import Util.Direction;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
-public class Tests extends Application implements Runnable {
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Demonstrates the elevator moving up and down several times,
+ * stopping at each floor, without freezing the GUI.
+ */
+public class Tests extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-        //TODO make sure speed factor affects this part of sim
-        double speedFactor =1;
-        MotionSimulation sim = new MotionSimulation(speedFactor);
+        MotionSimulation sim = new MotionSimulation(.5);
         Thread simThread = new Thread(sim);
-        simThread.setDaemon(true); // ensures thread stops when app closes
+        simThread.setDaemon(true);
         simThread.start();
 
         ElevatorGUI gui = new ElevatorGUI(
@@ -26,41 +33,39 @@ public class Tests extends Application implements Runnable {
         );
         gui.getPrimaryStage(primaryStage);
 
-        sim.setDirection(Direction.UP);
 
-        sim.start();
+        int flors = 10;
+        List<Integer> floorSequence = new ArrayList<>();
+        for (int i = 0; i < flors; i++) floorSequence.add(i);
+        for (int i = flors - 2; i > 0; i--) floorSequence.add(i);
+        Timeline timeline = new Timeline();
+        double time_at_Floor = 2.05;
+        double time = 0;
+        Direction dir = Direction.UP;
+        for (int i = 0; i < floorSequence.size(); i++) {
+            int floor = floorSequence.get(i);
+            Direction direction = (i < flors - 1) ? Direction.UP : Direction.DOWN;
+            //System.out.println(i+" < "+flors+ "Floor "+floor);
+            timeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(time),
+                    e -> {
+                        sim.setDirection(direction);
+                        sim.start();
+                    }
+            ));
 
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline();
+            time += time_at_Floor; //this is the time it took to reach the floor
+            timeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(time),
+                    e -> sim.stop()
+            ));
+        }
 
-        timeline.getKeyFrames().add(new javafx.animation.KeyFrame(
-                javafx.util.Duration.seconds(5),
-                e -> sim.stop()
-        ));
-
-        timeline.getKeyFrames().add(new javafx.animation.KeyFrame(
-                javafx.util.Duration.seconds(7),
-                e -> {
-                    sim.setDirection(Direction.DOWN);
-                    sim.start();
-                }
-        ));
-
-        timeline.getKeyFrames().add(new javafx.animation.KeyFrame(
-                javafx.util.Duration.seconds(12),
-                e -> sim.stop()
-        ));
-
-        timeline.setCycleCount(1);
-
+        timeline.setCycleCount(Timeline.INDEFINITE); //so liek a while true that doesnt break everything!!!
         timeline.play();
     }
 
-
-    /**
-     * Runs this operation.
-     */
-    @Override
-    public void run() {
-
+    public static void main(String[] args) {
+        launch(args);
     }
 }
