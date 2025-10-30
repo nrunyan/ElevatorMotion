@@ -112,9 +112,10 @@ public class MotionSimulation implements Runnable {
 
             current_speed += Constants.ACCELERATION * sillyTimeSorryVal * accelerating_indicator;
         } else {
-            // no acceleration go towards zero
+            //no acceleration go towards zero, so this is sorta a janky reuse of accleration indicator
+
             if (current_speed != 0.0) {
-                double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed);
+                double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed); //get the sig nif number of the current speed
                 if (Math.abs(steppre) >= Math.abs(current_speed)) {
                     current_speed = 0.0;
                 } else {
@@ -123,16 +124,16 @@ public class MotionSimulation implements Runnable {
             }
         }
 
-        //goes to max speed negative or positive
+        //goes to max speed negative or positive account for going over so we dont have to worry about roundinf
         if (Math.abs(current_speed) > Constants.MAX_SPEED) {
             current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);  // bless you math.copytime
         }
 
         //positive->up, negative-> down
         if (current_speed != 0.0) {
-            double deltaY = current_speed * sillyTimeSorryVal;
+            double delta_Y = current_speed * sillyTimeSorryVal;
             //tell obsetcvers
-            elevator.set_y_position(elevator.getY_position() + deltaY);
+            elevator.set_y_position(elevator.getY_position() + delta_Y);
         } else {
             //If we've come to a full stop and previously were decelerating, reset indicator
             if (accelerating_indicator < 0) {
