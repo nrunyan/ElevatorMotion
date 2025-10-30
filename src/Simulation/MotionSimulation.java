@@ -27,7 +27,7 @@ public class MotionSimulation implements Runnable {
     private final Elevator elevator;
 
     // How long the thread sleeps before updating position, velocity, etc.
-    private final int SLEEP_MILLIS = 375;
+    private final int SLEEP_MILLIS = 100;
 
     // Top Level
     private final int MAX_SENSOR_IDX = 19;
@@ -85,6 +85,7 @@ public class MotionSimulation implements Runnable {
                         from_millis_to_seconds(SLEEP_MILLIS) *
                         accelerating_indicator;
                 elevator.set_y_position(elevator_delta_y() + elevator.getY_position());
+                update_sensors();
             } else{
                 // Constant speed cases
                 if (accelerating_indicator < 0) {
@@ -96,9 +97,10 @@ public class MotionSimulation implements Runnable {
                     current_speed = Constants.MAX_SPEED;
                     accelerating_indicator = 0;
                     elevator.set_y_position(elevator_delta_y() + elevator.getY_position());
+                    update_sensors();
                 }
             }
-            update_sensors();
+
             try {
                 Thread.sleep(SLEEP_MILLIS);
             } catch (InterruptedException e) {
@@ -134,14 +136,17 @@ public class MotionSimulation implements Runnable {
 
                 // TODO: check this
                 int sensor_above_idx = top_idx + 1;
-                // Top sensor triggered
+                // Top sensor
+                System.out.println(y_pos_top);
                 if (sensor_above_idx <= MAX_SENSOR_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
                     // Turn sensor above on
                     sensor_HashMap.get(sensor_above_idx).set_triggered(true);
+                    System.out.println("Elevator is at: "+y_pos_top+ "sensor is at: "+ sensor_pos_Map.get(sensor_above_idx));
 
                     // Turn bottom sensor off, if not already off
                     if(bottom_idx!=-1){
                         sensor_HashMap.get(bottom_idx).set_triggered(false);
+                        System.out.println("turning off bottom sensor at Sensor: "+bottom_idx+" Elevator is at : "+y_pos_bottom);
                     }
 
                     // Update bottom and top floor indices
@@ -153,9 +158,9 @@ public class MotionSimulation implements Runnable {
                     }
 
                 // bottom sensor untriggered
-                } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) > y_pos_bottom){
+                } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) < y_pos_bottom){
                     // Turn off bottom sensor
-                    System.out.println("sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
+                    System.out.println("2 if: sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
                     sensor_HashMap.get(bottom_idx).set_triggered(false);
 
                     //set bottom id to none selected
@@ -254,6 +259,12 @@ public class MotionSimulation implements Runnable {
         }else{
             System.out.println("Set direction");
         }
+
+    }
+
+    public void stopAt_next_floor(){
+        //next bottom sensor, further that 1.5 meters away
+
 
     }
 

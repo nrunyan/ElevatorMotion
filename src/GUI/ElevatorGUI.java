@@ -87,6 +87,7 @@ public class ElevatorGUI {
         elevator_car.setLayoutX(120);
         elevator_car.setLayoutY(joel_to_java(initialY));
         elevatorFX = new ElevatorFX(elevator_car);
+
         elevator.subscribe(elevatorFX);
         shaftPane.getChildren().add(elevator_car);
 

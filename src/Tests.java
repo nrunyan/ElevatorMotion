@@ -16,13 +16,9 @@ public class Tests extends Application {
 
 
         gui.getPrimaryStage(primaryStage);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         sim.setDirection(Direction.UP);
         sim.start();
+
     }
 
     public static void main(String[] args) {
