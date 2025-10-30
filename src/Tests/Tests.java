@@ -53,7 +53,6 @@ public class Tests extends Application {
                         sim.start();
                     }
             ));
-
             time += time_at_Floor; //this is the time it took to reach the floor
             timeline.getKeyFrames().add(new KeyFrame(
                     Duration.seconds(time),
