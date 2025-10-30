@@ -1,6 +1,5 @@
 package Simulation;
 
-import GUI.ElevatorGUI;
 import Hardware.Elevator;
 import Hardware.Motor;
 import Hardware.Sensor;
@@ -46,13 +45,15 @@ public class MotionSimulation implements Runnable {
     private int bottom_idx = 0;
 
     private boolean at_start=true;
+    private double speedFactor=1;
 
     /**
      * Makes a motion simulation
      */
-    public MotionSimulation(){
+    public MotionSimulation(double speedFactor){
         motor = new Motor();
         elevator = new Elevator();
+        this.speedFactor=speedFactor;
 
         // Initializing the Hash Maps
         double y_pos = 0;
@@ -77,45 +78,89 @@ public class MotionSimulation implements Runnable {
      */
     @Override
     public void run() {
-        while (true){
-            if((current_speed < Constants.MAX_SPEED) && (current_speed >= 0)) {
-                // Accelerate
+        update_sensors();
+        boolean running=true;
+        boolean sillyBoolean = true;
 
-                current_speed += Constants.ACCELERATION *
-                        from_millis_to_seconds(SLEEP_MILLIS) *
-                        accelerating_indicator;
-                elevator.set_y_position(elevator_delta_y() + elevator.getY_position());
-                update_sensors();
-            } else{
-                // Constant speed cases
-                if (accelerating_indicator < 0) {
-                    // Stopped
-                    current_speed = 0;
-                    accelerating_indicator = 0;
-                } else {
-                    //deceletatring or something idk ask joel
-                    current_speed = Constants.MAX_SPEED;
-                    accelerating_indicator = 0;
-                    elevator.set_y_position(elevator_delta_y() + elevator.getY_position());
-                    update_sensors();
-                }
-            }
+        final double sillyTimeSorryVal = from_millis_to_seconds(SLEEP_MILLIS);
 
+        while (running) {
+            update_sensors();
             try {
-                Thread.sleep(SLEEP_MILLIS);
-            } catch (InterruptedException e) {
-                System.out.println("Motion Simulation couldn't sleep");
-            }
 
+                System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
+
+                if (accelerating_indicator != 0) {
+
+                    current_speed += Constants.ACCELERATION * sillyTimeSorryVal * accelerating_indicator;
+                } else {
+                    // no acceleration go towards zero
+                    if (current_speed != 0.0) {
+                        double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed);
+                        if (Math.abs(steppre) >= Math.abs(current_speed)) {
+                            current_speed = 0.0;
+                        } else {
+                            current_speed -= steppre;
+                        }
+                    }
+                }
+
+                //goes to max speed negative or positive
+                if (Math.abs(current_speed) > Constants.MAX_SPEED) {
+                    current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);  // bless you math.copytime
+                }
+
+                // current_speed now carries sign: positive -> up, negative -> down
+                if (current_speed != 0.0) {
+                    double deltaY = current_speed * sillyTimeSorryVal;
+                    //tell obsetcvers
+                    elevator.set_y_position(elevator.getY_position() + deltaY);
+                } else {
+                    //If we've come to a full stop and previously were decelerating, reset indicator
+                    if (accelerating_indicator < 0) {
+
+                        accelerating_indicator = 0;
+                    }
+                }
+                update_sensors();
+
+                // kinda like loop timeing
+                Thread.sleep((long) ((int)SLEEP_MILLIS*speedFactor));
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                running = false;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        update_sensors();
+    }
+
+    private void update_sensors() {
+        double yBottom = elevator.getY_position();
+        double yTop = elevator.upper_bound();
+
+        for (Integer idx : sensor_pos_Map.keySet()) {
+            double sensorY = sensor_pos_Map.get(idx);
+
+            if (sensorY+.5 >= yBottom && sensorY-.5 <= yTop) {
+                sensor_HashMap.get(idx).set_triggered(true);
+            } else {
+                sensor_HashMap.get(idx).set_triggered(false);
+            }
         }
     }
+
+
 
     /**
      * Update all the sensor objects, whether they are triggered or not
      * At most two sensors on at any time, use the position of the elevator
      * to set the sensors.
      */
-    private void update_sensors(){
+    private void update_sensors2(){
         // Get the positions of the elevator
 
         //asks joel why this doesn't work if it's in the constructor
@@ -123,6 +168,7 @@ public class MotionSimulation implements Runnable {
         if(at_start){
             sensor_HashMap.get(0).set_triggered(true);
             sensor_HashMap.get(1).set_triggered(true);
+            at_start=false;
 
         }
 
@@ -137,16 +183,16 @@ public class MotionSimulation implements Runnable {
                 // TODO: check this
                 int sensor_above_idx = top_idx + 1;
                 // Top sensor
-                System.out.println(y_pos_top);
+
                 if (sensor_above_idx <= MAX_SENSOR_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
                     // Turn sensor above on
                     sensor_HashMap.get(sensor_above_idx).set_triggered(true);
-                    System.out.println("Elevator is at: "+y_pos_top+ "sensor is at: "+ sensor_pos_Map.get(sensor_above_idx));
+                    //System.out.println("Elevator is at: "+y_pos_top+ "sensor is at: "+ sensor_pos_Map.get(sensor_above_idx));
 
                     // Turn bottom sensor off, if not already off
                     if(bottom_idx!=-1){
                         sensor_HashMap.get(bottom_idx).set_triggered(false);
-                        System.out.println("turning off bottom sensor at Sensor: "+bottom_idx+" Elevator is at : "+y_pos_bottom);
+                        //System.out.println("turning off bottom sensor at Sensor: "+bottom_idx+" Elevator is at : "+y_pos_bottom);
                     }
 
                     // Update bottom and top floor indices
@@ -160,7 +206,7 @@ public class MotionSimulation implements Runnable {
                 // bottom sensor untriggered
                 } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) < y_pos_bottom){
                     // Turn off bottom sensor
-                    System.out.println("2 if: sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
+                    //System.out.println("2 if: sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
                     sensor_HashMap.get(bottom_idx).set_triggered(false);
 
                     //set bottom id to none selected
@@ -171,7 +217,7 @@ public class MotionSimulation implements Runnable {
             case DOWN:
 
                 int sensor_bellow_idx= bottom_idx-1;
-                if(sensor_bellow_idx!=-1&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
+                if(sensor_bellow_idx>=0&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
                     //top sensor untriggered
 
                     sensor_HashMap.get(sensor_bellow_idx).set_triggered(true);
@@ -247,6 +293,12 @@ public class MotionSimulation implements Runnable {
 
     public Motor getMotor() {
         return motor;
+    }
+
+    public void stop(){
+        motor.stop();
+        direction=Direction.NULL;
+        accelerating_indicator=0;
     }
 
     public void start(){
