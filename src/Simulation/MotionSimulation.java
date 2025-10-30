@@ -42,8 +42,10 @@ public class MotionSimulation implements Runnable {
     private Direction direction = Direction.NULL;
 
     // The floor number associated (-1 when unset)
-    private int top_idx = -1;
-    private int bottom_idx = -1;
+    private int top_idx = 1;
+    private int bottom_idx = 0;
+
+    private boolean at_start=true;
 
     /**
      * Makes a motion simulation
@@ -67,6 +69,7 @@ public class MotionSimulation implements Runnable {
             sensor_pos_Map.put(i, y_pos);
         }
 
+
     }
 
     /**
@@ -75,8 +78,9 @@ public class MotionSimulation implements Runnable {
     @Override
     public void run() {
         while (true){
-            if((current_speed < Constants.MAX_SPEED) && (current_speed > 0)) {
+            if((current_speed < Constants.MAX_SPEED) && (current_speed >= 0)) {
                 // Accelerate
+
                 current_speed += Constants.ACCELERATION *
                         from_millis_to_seconds(SLEEP_MILLIS) *
                         accelerating_indicator;
@@ -88,9 +92,10 @@ public class MotionSimulation implements Runnable {
                     current_speed = 0;
                     accelerating_indicator = 0;
                 } else {
-                    // Maxed out speed
+                    //deceletatring or something idk ask joel
                     current_speed = Constants.MAX_SPEED;
                     accelerating_indicator = 0;
+                    elevator.set_y_position(elevator_delta_y() + elevator.getY_position());
                 }
             }
             update_sensors();
@@ -99,6 +104,7 @@ public class MotionSimulation implements Runnable {
             } catch (InterruptedException e) {
                 System.out.println("Motion Simulation couldn't sleep");
             }
+
         }
     }
 
@@ -109,12 +115,23 @@ public class MotionSimulation implements Runnable {
      */
     private void update_sensors(){
         // Get the positions of the elevator
+
+        //asks joel why this doesn't work if it's in the constructor
+        //just leave it here for now, i think its a weird observer issue or something idk ask joel
+        if(at_start){
+            sensor_HashMap.get(0).set_triggered(true);
+            sensor_HashMap.get(1).set_triggered(true);
+
+        }
+
+
         double y_pos_bottom = elevator.getY_position();
         double y_pos_top = elevator.upper_bound();
 
         // Update sensors based on position and direction
         switch (direction){
             case UP:
+
                 // TODO: check this
                 int sensor_above_idx = top_idx + 1;
                 // Top sensor triggered
@@ -138,6 +155,7 @@ public class MotionSimulation implements Runnable {
                 // bottom sensor untriggered
                 } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) > y_pos_bottom){
                     // Turn off bottom sensor
+                    System.out.println("sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
                     sensor_HashMap.get(bottom_idx).set_triggered(false);
 
                     //set bottom id to none selected
@@ -146,6 +164,7 @@ public class MotionSimulation implements Runnable {
                 }
                 break;
             case DOWN:
+
                 int sensor_bellow_idx= bottom_idx-1;
                 if(sensor_bellow_idx!=-1&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
                     //top sensor untriggered
@@ -175,13 +194,13 @@ public class MotionSimulation implements Runnable {
 
         }
 
-        for (int i: sensor_HashMap.keySet()){
-            if(i>elevator.getY_position() && i < elevator.upper_bound()){
-                sensor_HashMap.get(i).set_triggered(true);
-            }else {
-                sensor_HashMap.get(i).set_triggered(false);
-            }
-        }
+//        for (int i: sensor_HashMap.keySet()){
+//            if(i>elevator.getY_position() && i < elevator.upper_bound()){
+//                sensor_HashMap.get(i).set_triggered(true);
+//            }else {
+//                sensor_HashMap.get(i).set_triggered(false);
+//            }
+//        }
     }
 
     /**
@@ -223,6 +242,23 @@ public class MotionSimulation implements Runnable {
 
     public Motor getMotor() {
         return motor;
+    }
+
+    public void start(){
+        at_start=false;
+        motor.start();
+        if(direction.equals(Direction.UP)){
+            accelerating_indicator=1;
+        }else if (direction.equals(Direction.DOWN)){
+            accelerating_indicator=-1;
+        }else{
+            System.out.println("Set direction");
+        }
+
+    }
+
+    public void setDirection(Direction direction){
+        this.direction=direction;
     }
 
 //    public static void main(String[] args) {

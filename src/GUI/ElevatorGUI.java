@@ -37,13 +37,13 @@ public class ElevatorGUI {
     private Label bottom_alignment_label = new Label("bottom_Aligned:null");
     private Rectangle elevator_car;
     private Rectangle floor;
-    private static final double SENSOR_HEIGHT = Constants.HEIGHT;
+    public static final double SENSOR_HEIGHT = Constants.HEIGHT;
     private static final double FLOOR_THICKNESS = Constants.FLOOR_THICKNESS;
     private static final double MAX_SPEED = Constants.MAX_SPEED;
     private static final double ACCLERATION = Constants.ACCELERATION;
     private static final int NUM_FLOORS = 10;
-    private static final double SHAFT_HEIGHT = (SENSOR_HEIGHT + FLOOR_THICKNESS) * NUM_FLOORS;
-    private static final double CAR_HEIGHT = Constants.HEIGHT;
+    public static final double SHAFT_HEIGHT = (SENSOR_HEIGHT + FLOOR_THICKNESS) * NUM_FLOORS;
+    public static final double CAR_HEIGHT = Constants.HEIGHT;
     private static final int SHAFT_WIDTH = 100;
     private static final double CAR_WIDTH = CAR_HEIGHT;
     private static final double initialY = SHAFT_HEIGHT - 1;
@@ -226,7 +226,7 @@ public class ElevatorGUI {
         bottom_alignment_label.setText("Bottom Aligned: " + motion_API.bottom_alignment());
     }
 
-    public double joel_to_java(double meters) {
+    public static double joel_to_java(double meters) {
         return meters * 12;
     }
 
