@@ -1,5 +1,6 @@
 package Simulation;
 
+import GUI.ElevatorGUI;
 import Hardware.Elevator;
 import Hardware.Motor;
 import Hardware.Sensor;
@@ -13,7 +14,7 @@ import java.util.HashMap;
  * will be deleted later and replaced with working software
  */
 //TODO: make actual test to demonstrate gui functionality
-public class MotionSimulation implements Runnable{
+public class MotionSimulation implements Runnable {
     // Convert floor indicator to Sensor
     private final HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
     // Convert Sensors to y positions
@@ -22,7 +23,7 @@ public class MotionSimulation implements Runnable{
     // The motor object (to be replaced by Hardware)
     private final Motor motor;
 
-    // The elevator object (for simulation purposes)
+    // The elevator object (for simulation purposes) also hardware
     private final Elevator elevator;
 
     // How long the thread sleeps before updating position, velocity, etc.
@@ -32,13 +33,13 @@ public class MotionSimulation implements Runnable{
     private final int MAX_SENSOR_IDX = 19;
 
     // The elevator's current speed
-    private double current_speed=0.0;
+    private double current_speed = 0.0;
 
     // 1 if accelerating, -1 if decelerating,
-    private int accelerating_indicator  = 0;
+    private int accelerating_indicator = 0;
 
     // Which direction the elevator is going
-    private Direction direction;
+    private Direction direction = Direction.NULL;
 
     // The floor number associated (-1 when unset)
     private int top_idx = -1;
@@ -48,7 +49,7 @@ public class MotionSimulation implements Runnable{
      * Makes a motion simulation
      */
     public MotionSimulation(){
-        motor=new Motor();
+        motor = new Motor();
         elevator = new Elevator();
 
         // Initializing the Hash Maps
@@ -96,13 +97,13 @@ public class MotionSimulation implements Runnable{
             try {
                 Thread.sleep(SLEEP_MILLIS);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                System.out.println("Motion Simulation couldn't sleep");
             }
         }
     }
 
     /**
-     * Update all the sensor objects, as to wether they are triggered or not
+     * Update all the sensor objects, whether they are triggered or not
      * At most two sensors on at any time, use the position of the elevator
      * to set the sensors.
      */
@@ -129,7 +130,10 @@ public class MotionSimulation implements Runnable{
                     // Update bottom and top floor indices
                     bottom_idx = top_idx;
                     top_idx = sensor_above_idx;
-                    //TODO: snap elevator into place if stopped
+                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
+                        // snap into place
+                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
+                    }
 
                 // bottom sensor untriggered
                 } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) > y_pos_bottom){
@@ -146,7 +150,6 @@ public class MotionSimulation implements Runnable{
                 if(sensor_bellow_idx!=-1&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
                     //top sensor untriggered
 
-
                     sensor_HashMap.get(sensor_bellow_idx).set_triggered(true);
 
                     // Turn top sensor off, if not already off
@@ -157,7 +160,10 @@ public class MotionSimulation implements Runnable{
                     //update triggered floor positions
                     top_idx=bottom_idx;
                     bottom_idx=sensor_bellow_idx;
-                    //TODO: if motor's off, snap elevator into place
+                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
+                        // snap into place
+                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
+                    }
 
                 } else if (top_idx!=-1&& sensor_pos_Map.get(top_idx)>y_pos_top) {
                     // turn off top sensor
@@ -202,7 +208,24 @@ public class MotionSimulation implements Runnable{
         return ((double)milliseconds)/1000;
     }
 
-    public static void main(String[] args) {
-
+    //Todo: Comment these later
+    public HashMap<Integer, Sensor> getSensors() {
+        return sensor_HashMap;
     }
+
+    public HashMap<Integer, Double> get_sensor_pos_HashMap() {
+        return sensor_pos_Map;
+    }
+
+    public Elevator getElevator() {
+        return elevator;
+    }
+
+    public Motor getMotor() {
+        return motor;
+    }
+
+//    public static void main(String[] args) {
+//
+//    }
 }

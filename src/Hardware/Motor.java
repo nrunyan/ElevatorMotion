@@ -2,7 +2,7 @@ package Hardware;
 import Util.*;
 
 /**
- * Authors: Natalie Runyan, Valerie Barker
+ * Authors: Natalie Runyan, Valerie Barker, Youssef Amin
  */
 public class Motor implements Observable{
     //If the motor is on or not
@@ -10,6 +10,10 @@ public class Motor implements Observable{
     //The direction the motor is running
     private Direction direction;
 
+    public Motor(){
+        this.on = false;
+        this.direction = Direction.NULL;
+    }
     /**
      * Start API for the motor, starts the motor and notifies observers
      */
@@ -50,5 +54,14 @@ public class Motor implements Observable{
      */
     public Direction get_direction(){
         return this.direction;
+    }
+
+    /**
+     * Lets us check if the motor is on or off.
+     * Used to snap into place in motion sim
+     * @return true if the motor is on
+     */
+    public boolean is_off(){
+        return !on;
     }
 }

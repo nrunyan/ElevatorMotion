@@ -1,5 +1,7 @@
 package Hardware;
 
+import GUI.ElevatorFX;
+import Util.Constants;
 import Util.Observable;
 import Util.Observer;
 
@@ -13,6 +15,10 @@ public class Elevator implements Observable {
     //The height of the elevator
     private double height;
 
+    public Elevator(){
+        this.y_position = 0;
+        this.height = Constants.HEIGHT;
+    }
     /**
      * Returns the y position of the elevator
      * @return

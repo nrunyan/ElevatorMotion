@@ -13,6 +13,7 @@ public class ElevatorFX implements Observer{
     }
     @Override
     public void update(Observable viewee) {
+        //being passed sensor at some point????
         if(viewee instanceof Elevator){
             elly.setLayoutY(((Elevator) viewee).getY_position());
         }else {
