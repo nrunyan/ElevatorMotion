@@ -161,7 +161,6 @@ public class ElevatorGUI {
                 Rectangle floor = new Rectangle(x-3, y - joel_to_java(FLOOR_THICKNESS) - 3, 100, joel_to_java(FLOOR_THICKNESS) + SENSOR_HEIGHT * 2);
                 floor.setFill(Color.GRAY);
                 shaftPane.getChildren().add(floor);
-
             }
         }
     }
