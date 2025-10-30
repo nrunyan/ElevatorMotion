@@ -22,7 +22,7 @@ public class Motor implements Observable{
     /**
      * Start API for the motor, starts the motor and notifies observers
      */
-    public void start(){
+    public synchronized void start(){
         on=true;
         for (Observer o : observers) o.update(this);
     }
@@ -30,7 +30,7 @@ public class Motor implements Observable{
     /**
      * Stop API for the motor, stops the motor and notifies observers
      */
-    public void stop(){
+    public synchronized void stop(){
         on=false;
         for (Observer o : observers) o.update(this);
     }
@@ -39,7 +39,7 @@ public class Motor implements Observable{
      * Set direction API for the motor, sets direction and notifies observers
      * @param direction
      */
-    public void set_direction(Direction direction){
+    public synchronized void set_direction(Direction direction){
         this.direction=direction;
         for (Observer o : observers) o.update(this);
     }
