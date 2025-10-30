@@ -32,9 +32,9 @@ public class ElevatorGUI {
      */
 
     private MotionAPI motion_API = new MotionAPI();
-    private Label direction_label = new Label("direction:null");
-    private Label top_alignment_label = new Label("top_Aligned:null");
-    private Label bottom_alignment_label = new Label("bottom_Aligned:null");
+    //private Label direction_label = new Label("direction:null");
+   // private Label top_alignment_label = new Label("top_Aligned:null");
+   // private Label bottom_alignment_label = new Label("bottom_Aligned:null");
     private Rectangle elevator_car;
     private Rectangle floor;
     public static final double SENSOR_HEIGHT = Constants.HEIGHT;
@@ -126,15 +126,15 @@ public class ElevatorGUI {
 //        buttonBox.setPadding(new Insets(10));
 
 
-        VBox statusBox = new VBox(5, direction_label, top_alignment_label, bottom_alignment_label);
-        statusBox.setAlignment(Pos.CENTER_LEFT);
-        statusBox.setPadding(new Insets(10));
+        //VBox statusBox = new VBox(5, direction_label, top_alignment_label, bottom_alignment_label);
+       // statusBox.setAlignment(Pos.CENTER_LEFT);
+       // statusBox.setPadding(new Insets(10));
 
         Group root = new Group();
         BorderPane natPane = new BorderPane();
         natPane.setRight(shaftPane);
 //        natPane.setTop(buttonBox);
-        natPane.setBottom(statusBox);
+       // natPane.setBottom(statusBox);
         natPane.setStyle("-fx-border-color: black; -fx-background-color: lightgray;");
         root.getChildren().add(natPane);
 //        root.getChildren().add(anchorPane);
@@ -198,12 +198,12 @@ public class ElevatorGUI {
     /**
      * Any refresh actions here
      */
-    private void redraw() {
-
-        direction_label.setText("Util.Direction: " + motion_API.direction);
-        top_alignment_label.setText("Top Aligned: " + motion_API.top_alignment());
-        bottom_alignment_label.setText("Bottom Aligned: " + motion_API.bottom_alignment());
-    }
+//    private void redraw() {
+//
+//        direction_label.setText("Util.Direction: " + motion_API.direction);
+//        top_alignment_label.setText("Top Aligned: " + motion_API.top_alignment());
+//        bottom_alignment_label.setText("Bottom Aligned: " + motion_API.bottom_alignment());
+//    }
 
     public static double joel_to_java(double meters) {
         return meters * 12;
