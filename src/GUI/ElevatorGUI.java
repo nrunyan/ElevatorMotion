@@ -12,7 +12,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
 import java.util.HashMap;
+
 import Hardware.*;
 
 public class ElevatorGUI {
@@ -20,7 +22,7 @@ public class ElevatorGUI {
 
     /**
      * JOEL'S Util.Constants
-     *
+     * <p>
      * Height between two sensors on the same floor: 3.0 meters
      * Floor thickness: 1.0 meters
      * Maximum speed of the elevator: 1.0 meters per second
@@ -35,16 +37,16 @@ public class ElevatorGUI {
     private Label bottom_alignment_label = new Label("bottom_Aligned:null");
     private Rectangle elevator_car;
     private Rectangle floor;
-    private static final double SENSOR_HEIGHT=Constants.HEIGHT;
-    private static final double FLOOR_THICKNESS=Constants.FLOOR_THICKNESS;
-    private static final double MAX_SPEED=Constants.MAX_SPEED;
-    private static final double ACCLERATION=Constants.ACCELERATION;
-    private static final int NUM_FLOORS=10;
-    private static final double SHAFT_HEIGHT = (SENSOR_HEIGHT+FLOOR_THICKNESS)*NUM_FLOORS;
+    private static final double SENSOR_HEIGHT = Constants.HEIGHT;
+    private static final double FLOOR_THICKNESS = Constants.FLOOR_THICKNESS;
+    private static final double MAX_SPEED = Constants.MAX_SPEED;
+    private static final double ACCLERATION = Constants.ACCELERATION;
+    private static final int NUM_FLOORS = 10;
+    private static final double SHAFT_HEIGHT = (SENSOR_HEIGHT + FLOOR_THICKNESS) * NUM_FLOORS;
     private static final double CAR_HEIGHT = Constants.HEIGHT;
     private static final int SHAFT_WIDTH = 100;
-    private static final double CAR_WIDTH= CAR_HEIGHT;
-    private static final double initialY=SHAFT_HEIGHT - 1;
+    private static final double CAR_WIDTH = CAR_HEIGHT;
+    private static final double initialY = SHAFT_HEIGHT - 1;
 
     private static final double MOTORRAD = 1.5;
     private Stage primaryStage;
@@ -55,11 +57,11 @@ public class ElevatorGUI {
     private MotorFX motorFX;
     private HashMap<Integer, SensorFX> sensorsFX;
     private HashMap<Integer, Double> sensor_pos_HashMap;
-//    private AnchorPane anchorPane;
+    //    private AnchorPane anchorPane;
     private Pane shaftPane;
 
     public ElevatorGUI(HashMap<Integer, Sensor> sensor_HashMap, HashMap<Integer, Double> sensor_pos_HashMap,
-                       Elevator elevator, Motor motor){
+                       Elevator elevator, Motor motor) {
         this.sensor_HashMap = sensor_HashMap;
         this.motor = motor;
         this.elevator = elevator;
@@ -77,19 +79,20 @@ public class ElevatorGUI {
         this.primaryStage = stage;
         primaryStage.setTitle("Group 7's super sick gui");
         shaftPane = new Pane();
-        shaftPane.setPrefSize(joelToJava(SHAFT_WIDTH), joelToJava(SHAFT_HEIGHT) + joelToJava(2 * SENSOR_HEIGHT));
+        shaftPane.setPrefSize(joel_to_java(SHAFT_WIDTH), joel_to_java(SHAFT_HEIGHT) + joel_to_java(2 * SENSOR_HEIGHT));
         shaftPane.setStyle("-fx-border-color: black; -fx-background-color: lightgray;");
 
         // CHANGE TO CONCAT GUI VIEWS INTO ONE
-        elevator_car = new Rectangle(joelToJava(CAR_WIDTH), joelToJava(CAR_HEIGHT), Color.DARKGRAY);
+        elevator_car = new Rectangle(joel_to_java(CAR_WIDTH), joel_to_java(CAR_HEIGHT), Color.DARKGRAY);
         elevator_car.setLayoutX(120);
-        elevator_car.setLayoutY(joelToJava(initialY));
+        elevator_car.setLayoutY(joel_to_java(initialY));
         elevatorFX = new ElevatorFX(elevator_car);
         elevator.subscribe(elevatorFX);
         shaftPane.getChildren().add(elevator_car);
 
         //Drawing Sensors
 //        anchorPane = new AnchorPane();
+        draw_floors();
         drawSensor();
 
 //        Button upButton = new Button("Up");
@@ -135,44 +138,51 @@ public class ElevatorGUI {
         root.getChildren().add(natPane);
 //        root.getChildren().add(anchorPane);
 
-        Scene scene = new Scene(root, 300, 1000);
+        Scene scene = new Scene(root, 300, 635);
         primaryStage.setScene(scene);
         primaryStage.show();
 
         return primaryStage;
     }
 
-    /**
-     * Draws all the circles for the sensors and gives the circles to the sensorFXs
-     * 1.
-     */
-    public void drawSensor(){
-//        double y = SHAFT_HEIGHT;
+    public void draw_floors() {
         double x = 200;
-//        double ys = 0;
-
-        //draw sensors
-        for(Integer i = 0; i < sensor_HashMap.size(); i++){
-            double y = joelToJava(SHAFT_HEIGHT + SENSOR_HEIGHT - sensor_pos_HashMap.get(i));
-            //floors
-            if(i % 2 == 0){
-                Rectangle floor = new  Rectangle(x, y, 100, joelToJava(FLOOR_THICKNESS));
+        //floors
+        for (Integer i = 0; i < sensor_HashMap.size(); i++) {
+            double y = joel_to_java(SHAFT_HEIGHT + SENSOR_HEIGHT - sensor_pos_HashMap.get(i));
+            if (i % 2 == 0) {
+                Rectangle floor = new Rectangle(x-3, y - 3, 100, joel_to_java(FLOOR_THICKNESS) + SENSOR_HEIGHT * 2);
                 floor.setFill(Color.GRAY);
                 shaftPane.getChildren().add(floor);
             }
 
             //Top Floor
-            if(i == sensor_HashMap.size()-1){
-                Rectangle floor = new  Rectangle(x, y - joelToJava(FLOOR_THICKNESS), 100, joelToJava(FLOOR_THICKNESS));
+            if (i == sensor_HashMap.size() - 1) {
+                Rectangle floor = new Rectangle(x-3, y - joel_to_java(FLOOR_THICKNESS) - 3, 100, joel_to_java(FLOOR_THICKNESS) + SENSOR_HEIGHT * 2);
                 floor.setFill(Color.GRAY);
                 shaftPane.getChildren().add(floor);
 
             }
+        }
+    }
 
-            Circle sen = new Circle(x,y,SENSOR_HEIGHT,Color.RED);
+    /**
+     * Draws all the circles for the sensors and gives the circles to the sensorFXs
+     * 1.
+     */
+    public void drawSensor() {
+//        double y = SHAFT_HEIGHT;
+        double x = 200;
+//        double ys = 0;
+
+        //draw sensors
+        for (Integer i = 0; i < sensor_HashMap.size(); i++) {
+            double y = joel_to_java(SHAFT_HEIGHT + SENSOR_HEIGHT - sensor_pos_HashMap.get(i));
+
+            Circle sen = new Circle(x, y, SENSOR_HEIGHT, Color.RED);
             SensorFX sensorFX = new SensorFX(sen);
             sensor_HashMap.get(i).subscribe(sensorFX);
-            sensorsFX.put(i,sensorFX);
+            sensorsFX.put(i, sensorFX);
             shaftPane.getChildren().add(sen);
 
         }
@@ -189,8 +199,8 @@ public class ElevatorGUI {
      */
     private void move() {
         Direction dir = motion_API.direction;
-        int bottom=310;
-        int top=10; //We might want to make thes global constants
+        int bottom = 310;
+        int top = 10; //We might want to make thes global constants
 //        // 1 second is 10^9
 //        AnimationTimer animationTimer = new AnimationTimer() {
 //
@@ -199,9 +209,9 @@ public class ElevatorGUI {
 
         if (dir == Direction.UP) {
             // this is just a placeholder irl we want some animation timer here
-            elevator_car.setLayoutY(Math.max(top, elevator_car.getLayoutY() - joelToJava(4.0)));
+            elevator_car.setLayoutY(Math.max(top, elevator_car.getLayoutY() - joel_to_java(4.0)));
         } else if (dir == Direction.DOWN) {
-            elevator_car.setLayoutY(Math.min(joelToJava(initialY), elevator_car.getLayoutY() + joelToJava(4.0)));
+            elevator_car.setLayoutY(Math.min(joel_to_java(initialY), elevator_car.getLayoutY() + joel_to_java(4.0)));
         }
         redraw();
     }
@@ -216,8 +226,8 @@ public class ElevatorGUI {
         bottom_alignment_label.setText("Bottom Aligned: " + motion_API.bottom_alignment());
     }
 
-    private double joelToJava(double meters){
-        return meters*20;
+    public double joel_to_java(double meters) {
+        return meters * 12;
     }
 
 }
