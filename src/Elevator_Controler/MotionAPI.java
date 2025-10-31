@@ -1,11 +1,20 @@
 package Elevator_Controler;
 
+import Hardware.Elevator;
+import Hardware.Motor;
+import Hardware.Sensor;
 import Util.Direction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MotionAPI {
     public Direction direction=null;
     private Integer top_Alignment=null;
     private Integer bottom_Alignment=null;
+
+    private List<Sensor> sensors = new ArrayList<>();
+    private Motor motor = new Motor();
 
 
     /**
@@ -13,7 +22,7 @@ public class MotionAPI {
      * @param direction Up, down or null
      */
     public void set_direction(Direction direction){
-        this.direction=direction;
+        motor.set_direction(direction);
     }
 
     /**
@@ -21,7 +30,10 @@ public class MotionAPI {
      * @return A floor number or null
      */
     public Integer top_alignment(){
-        return top_Alignment;
+        for (Sensor s : sensors) {
+            if (s.is_triggered() && sensors.indexOf(s) % 2 == 1) return sensors.indexOf(s);
+        }
+        return null;
     }
 
     /**
@@ -29,7 +41,10 @@ public class MotionAPI {
      * @return A floor number or null
      */
     public Integer bottom_alignment(){
-        return bottom_Alignment;
+        for (Sensor s : sensors) {
+            if (s.is_triggered() && sensors.indexOf(s) % 2 == 0) return sensors.indexOf(s);
+        }
+        return null;
     }
 
     /**
@@ -37,7 +52,7 @@ public class MotionAPI {
      * movement at constant_speed either up or down
      */
     public void start(){
-
+        motor.start();
     }
 
     /**
@@ -45,6 +60,6 @@ public class MotionAPI {
      * movement from constant_speed to zero with a decay of deeleration
      */
     public void stop(){
-
+        motor.stop();
     }
 }
