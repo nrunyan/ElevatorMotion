@@ -26,7 +26,7 @@ public class MotionSimulation implements Runnable {
     private final Elevator elevator;
 
     // How long the thread sleeps before updating position, velocity, etc.
-    private final int SLEEP_MILLIS = 100;
+//    private final int SLEEP_MILLIS = 100;
 
     // Top Level
     private final int MAX_SENSOR_IDX = 19;
@@ -46,6 +46,9 @@ public class MotionSimulation implements Runnable {
 
     private boolean at_start=true;
     private double speedFactor=1;
+
+    // Sensor tolerance
+    private final double TOLERANCE = 0.5;
 
     /**
      * Makes a motion simulation
@@ -78,24 +81,17 @@ public class MotionSimulation implements Runnable {
      */
     @Override
     public void run() {
+        boolean running = true;
+
+        // The sensors must be initially updated, to initialize them
         update_sensors();
-        boolean running=true;
 
-
-        double cycle_Time = from_millis_to_seconds(SLEEP_MILLIS);
-
-        while (running) {
-            update_sensors();
+        while(running){
+            // Update
+            tick();
             try {
-
-               // System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
-
-                tick(cycle_Time);
-                update_sensors();
-
-                // kinda like loop timeing
-                Thread.sleep((long) ((int)SLEEP_MILLIS*speedFactor));
-
+                // Sleep
+                Thread.sleep((long) ((int)Constants.SIM_SLEEP_TIME*speedFactor));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 running = false;
@@ -103,8 +99,34 @@ public class MotionSimulation implements Runnable {
                 ex.printStackTrace();
             }
         }
-
-        update_sensors();
+//        TODO: Delete
+//        update_sensors();
+//        boolean running=true;
+//
+//
+//        double cycle_Time = from_millis_to_seconds(SLEEP_MILLIS);
+//
+//        while (running) {
+//            update_sensors();
+//            try {
+//
+//               // System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
+//
+//                tick(cycle_Time);
+//                update_sensors();
+//
+//                // kinda like loop timeing
+//                Thread.sleep((long) ((int)SLEEP_MILLIS*speedFactor));
+//
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                running = false;
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+//
+//        update_sensors();
     }
 
     private void tick(double cycle_time) {
@@ -144,6 +166,54 @@ public class MotionSimulation implements Runnable {
         }
     }
 
+    /**
+     * Update the elevator, then the sensors
+     */
+    private void tick() {
+        update_elevator();
+        update_sensors();
+    }
+
+    /**
+     * Use the constants, to update the position, and velocity, according to
+     * direction
+     */
+    private void update_elevator() {
+        if (accelerating_indicator != 0) {
+
+            current_speed += Constants.ACCELERATION_TICK * accelerating_indicator;
+        } else {
+            // No acceleration go towards zero, so this is sorta a janky reuse of accleration indicator
+            if (current_speed != 0.0) {
+                // Get the sign of the current speed (1) positive,  (-1) negative
+                double steppre = Constants.ACCELERATION_TICK * Math.signum(current_speed);
+                if (Math.abs(steppre) >= Math.abs(current_speed)) {
+                    current_speed = 0.0;
+                } else {
+                    current_speed -= steppre;
+                }
+            }
+        }
+
+        //goes to max speed negative or positive account for going over so we
+        // dont have to worry about rounding
+        if (Math.abs(current_speed) > Constants.MAX_SPEED_TICK) {
+            current_speed = Math.copySign(Constants.MAX_SPEED_TICK, current_speed);
+        }
+
+        // Change in y position, based on speed and
+        if (current_speed != 0.0) {
+            double delta_Y = current_speed;
+            // Tell observers
+            elevator.set_y_position(elevator.getY_position() + delta_Y);
+        } else {
+            //If we've come to a full stop and previously were decelerating, reset indicator
+            if (accelerating_indicator < 0) {
+                accelerating_indicator = 0;
+            }
+        }
+    }
+
     private void update_sensors() {
         double top=-1;
         double bottom=-1;
@@ -153,7 +223,7 @@ public class MotionSimulation implements Runnable {
         for (Integer idx : sensor_pos_Map.keySet()) {
             double sensorY = sensor_pos_Map.get(idx);
 
-            if (sensorY+.5 >= yBottom && sensorY-.5 <= yTop) {
+            if (sensorY+ TOLERANCE >= yBottom && sensorY- TOLERANCE <= yTop) {
                 sensor_HashMap.get(idx).set_triggered(true);
                 if(bottom==-1){
                     bottom=sensorY;
@@ -284,15 +354,15 @@ public class MotionSimulation implements Runnable {
      * @return Gets the elevators position based on current speed
      */
     private double elevator_delta_y() {
-        return  current_speed * from_millis_to_seconds(SLEEP_MILLIS);
+        return  current_speed * millis_to_seconds(Constants.SIM_SLEEP_TIME);
     }
     /**
      *  Handy converter
      * @param milliseconds the number of milliseconds
      * @return converted to seconds
      */
-    private double from_millis_to_seconds(int milliseconds){
-        return ((double)milliseconds)/1000;
+    private double millis_to_seconds(double milliseconds){
+        return milliseconds/1000;
     }
 
     //Todo: Comment these later
