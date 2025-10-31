@@ -80,9 +80,9 @@ public class MotionSimulation implements Runnable {
     public void run() {
         update_sensors();
         boolean running=true;
-        boolean sillyBoolean = true;
 
-        double sillyTimeSorryVal = from_millis_to_seconds(SLEEP_MILLIS);
+
+        double cycle_Time = from_millis_to_seconds(SLEEP_MILLIS);
 
         while (running) {
             update_sensors();
@@ -90,7 +90,7 @@ public class MotionSimulation implements Runnable {
 
                // System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
 
-                motion_updater_slash_neg(sillyTimeSorryVal);
+                tick(cycle_Time);
                 update_sensors();
 
                 // kinda like loop timeing
@@ -107,15 +107,15 @@ public class MotionSimulation implements Runnable {
         update_sensors();
     }
 
-    private void motion_updater_slash_neg(double sillyTimeSorryVal) {
+    private void tick(double cycle_time) {
         if (accelerating_indicator != 0) {
 
-            current_speed += Constants.ACCELERATION * sillyTimeSorryVal * accelerating_indicator;
+            current_speed += Constants.ACCELERATION * cycle_time * accelerating_indicator;
         } else {
             //no acceleration go towards zero, so this is sorta a janky reuse of accleration indicator
 
             if (current_speed != 0.0) {
-                double steppre = Constants.ACCELERATION * sillyTimeSorryVal * Math.signum(current_speed); //get the sig nif number of the current speed
+                double steppre = Constants.ACCELERATION * cycle_time * Math.signum(current_speed); //get the sig nif number of the current speed
                 if (Math.abs(steppre) >= Math.abs(current_speed)) {
                     current_speed = 0.0;
                 } else {
@@ -124,14 +124,15 @@ public class MotionSimulation implements Runnable {
             }
         }
 
-        //goes to max speed negative or positive account for going over so we dont have to worry about roundinf
+        //goes to max speed negative or positive account for going over so we
+        // dont have to worry about rounding
         if (Math.abs(current_speed) > Constants.MAX_SPEED) {
-            current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);  // bless you math.copytime
+            current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);
         }
 
         //positive->up, negative-> down
         if (current_speed != 0.0) {
-            double delta_Y = current_speed * sillyTimeSorryVal;
+            double delta_Y = current_speed * cycle_time;
             //tell obsetcvers
             elevator.set_y_position(elevator.getY_position() + delta_Y);
         } else {

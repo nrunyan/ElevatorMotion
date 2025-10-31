@@ -26,6 +26,12 @@ public class Constants {
     // Acceleration of the motor (same for start and stop) - meters per second^2
     public static final double ACCELERATION = MAX_SPEED / ACCELERATION_TIME;
 
+    //How much time between each simulation update, in milliseconds
+    public static final double SIM_SLEEP_TIME = 100;
+
+    public static final double TICK_VELOCITY = MAX_SPEED;
+    //TICK_ACCELERATION = ACCELERATION / SIM_SLEEP_TIME
+
     /**
      * Acceleration needs to be large enough to  ensure two things:
      * (1) that cabin will always be traveling at constant speed when stop is
