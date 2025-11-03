@@ -5,6 +5,8 @@ import Hardware.Motor;
 import Hardware.Sensor;
 import Util.Constants;
 import Util.Direction;
+import Util.Observable;
+import Util.Observer;
 
 import java.util.HashMap;
 
@@ -12,8 +14,8 @@ import java.util.HashMap;
  * This class simulates motion, for demonstration purposes
  * will be deleted later and replaced with working software
  */
-//TODO: make actual test to demonstrate gui functionality
-public class MotionSimulation implements Runnable {
+//TODO: PASS THIS THE MOTOR SO IT CAN WATCH LIKE A CUCK
+public class MotionSimulation implements Runnable, Observer {
     // Convert floor indicator to Sensor
     private final HashMap<Integer, Sensor> sensor_HashMap =new HashMap<>();
     // Convert Sensors to y positions
@@ -54,6 +56,7 @@ public class MotionSimulation implements Runnable {
      * Makes a motion simulation
      */
     public MotionSimulation(double speedFactor){
+        //TODO: make motion sim dependent on motor instead of controlling it
         motor = new Motor();
         elevator = new Elevator();
         this.speedFactor=speedFactor;
@@ -406,9 +409,36 @@ public class MotionSimulation implements Runnable {
 
 
     }
-
+    //TODO: remove this when we implement the software bus
     public void setDirection(Direction direction){
         this.direction=direction;
+    }
+
+    /**
+     * "so um basically we need to listen to the motor instead of telling it what to do"
+     * -Valerie Barker
+     * @param viewee the updated observable object (THIS SHOULD BE A MOTOR!!!1)
+     */
+    @Override
+    public void update(Observable viewee) {
+        Motor beloved = ((Motor) viewee);
+        if (viewee instanceof Motor) {
+            if (beloved.is_off()) {
+                accelerating_indicator = 0;
+                direction = null;
+            } else {
+                //"dont even worry about it, im sure its fine" -Natalie Runyan
+                //"uhh you forgot an apostrophe" -Youssef Amin
+                //at_start = false;
+                if (beloved.get_direction() == Direction.UP) {
+                    accelerating_indicator = 1;
+                } else {
+                    accelerating_indicator = -1;
+                }
+            }
+        } else {
+            System.err.println("HOLY CRAP THATS NOT A MOTOR!!1!");
+        }
     }
 
 //    public static void main(String[] args) {

@@ -4,6 +4,8 @@ import Hardware.Elevator;
 import Hardware.Motor;
 import Hardware.Sensor;
 import Util.Direction;
+import Virtual_Devices.Virtual_Motor;
+import Virtual_Devices.Virtual_Sensor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +15,8 @@ public class MotionAPI {
     private Integer top_Alignment=null;
     private Integer bottom_Alignment=null;
 
-    private List<Sensor> sensors = new ArrayList<>();
-    private Motor motor = new Motor();
+    private List<Virtual_Sensor> sensors = new ArrayList<>();
+    private Virtual_Motor motor = new Virtual_Motor();
 
 
     /**
@@ -30,7 +32,7 @@ public class MotionAPI {
      * @return A floor number or null
      */
     public Integer top_alignment(){
-        for (Sensor s : sensors) {
+        for (Virtual_Sensor s : sensors) {
             if (s.is_triggered() && sensors.indexOf(s) % 2 == 1) return sensors.indexOf(s);
         }
         return null;
@@ -41,7 +43,7 @@ public class MotionAPI {
      * @return A floor number or null
      */
     public Integer bottom_alignment(){
-        for (Sensor s : sensors) {
+        for (Virtual_Sensor s : sensors) {
             if (s.is_triggered() && sensors.indexOf(s) % 2 == 0) return sensors.indexOf(s);
         }
         return null;
