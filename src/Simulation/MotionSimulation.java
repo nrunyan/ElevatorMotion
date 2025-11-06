@@ -46,7 +46,7 @@ public class MotionSimulation implements Runnable, Observer {
     private int top_idx = 1;
     private int bottom_idx = 0;
 
-    private boolean at_start=true;
+
     private double speedFactor=1;
 
     // Sensor tolerance
@@ -85,8 +85,6 @@ public class MotionSimulation implements Runnable, Observer {
     @Override
     public void run() {
         boolean running = true;
-
-        // The sensors must be initially updated, to initialize them
         update_sensors();
 
         while(running){
@@ -102,72 +100,9 @@ public class MotionSimulation implements Runnable, Observer {
                 ex.printStackTrace();
             }
         }
-//        TODO: Delete
-//        update_sensors();
-//        boolean running=true;
-//
-//
-//        double cycle_Time = from_millis_to_seconds(SLEEP_MILLIS);
-//
-//        while (running) {
-//            update_sensors();
-//            try {
-//
-//               // System.out.println(elevator.getY_position() + ", " + elevator.upper_bound());
-//
-//                tick(cycle_Time);
-//                update_sensors();
-//
-//                // kinda like loop timeing
-//                Thread.sleep((long) ((int)SLEEP_MILLIS*speedFactor));
-//
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//                running = false;
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//
-//        update_sensors();
     }
 
-    private void tick(double cycle_time) {
-        if (accelerating_indicator != 0) {
 
-            current_speed += Constants.ACCELERATION * cycle_time * accelerating_indicator;
-        } else {
-            //no acceleration go towards zero, so this is sorta a janky reuse of accleration indicator
-
-            if (current_speed != 0.0) {
-                double steppre = Constants.ACCELERATION * cycle_time * Math.signum(current_speed); //get the sig nif number of the current speed
-                if (Math.abs(steppre) >= Math.abs(current_speed)) {
-                    current_speed = 0.0;
-                } else {
-                    current_speed -= steppre;
-                }
-            }
-        }
-
-        //goes to max speed negative or positive account for going over so we
-        // dont have to worry about rounding
-        if (Math.abs(current_speed) > Constants.MAX_SPEED) {
-            current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);
-        }
-
-        //positive->up, negative-> down
-        if (current_speed != 0.0) {
-            double delta_Y = current_speed * cycle_time;
-            //tell obsetcvers
-            elevator.set_y_position(elevator.getY_position() + delta_Y);
-        } else {
-            //If we've come to a full stop and previously were decelerating, reset indicator
-            if (accelerating_indicator < 0) {
-
-                accelerating_indicator = 0;
-            }
-        }
-    }
 
     /**
      * Update the elevator, then the sensors
@@ -208,13 +143,16 @@ public class MotionSimulation implements Runnable, Observer {
         if (current_speed != 0.0) {
             double delta_Y = current_speed;
             // Tell observers
-            elevator.set_y_position(elevator.getY_position() + delta_Y);
+            //elevator.set_y_position(elevator.getY_position() + delta_Y);
         } else {
             //If we've come to a full stop and previously were decelerating, reset indicator
             if (accelerating_indicator < 0) {
                 accelerating_indicator = 0;
             }
         }
+        System.out.println("current speed: "+ current_speed);
+        elevator.set_y_position(elevator.getY_position() + current_speed);
+        System.out.println(elevator.getY_position() + " + "+ current_speed);
     }
 
     private void update_sensors() {
@@ -228,121 +166,26 @@ public class MotionSimulation implements Runnable, Observer {
 
             if (sensorY+ TOLERANCE >= yBottom && sensorY- TOLERANCE <= yTop) {
                 sensor_HashMap.get(idx).set_triggered(true);
+
                 if(bottom==-1){
                     bottom=sensorY;
                 }else{
                     top =sensorY;
                 }
+
             } else {
                 sensor_HashMap.get(idx).set_triggered(false);
             }
         }
-        if(motor.is_off()&&bottom>=0){
-            elevator.set_y_position(bottom);
-        }
-
-    }
-
-
-
-    /**
-     * Update all the sensor objects, whether they are triggered or not
-     * At most two sensors on at any time, use the position of the elevator
-     * to set the sensors.
-     */
-    private void update_sensors2(){
-        // Get the positions of the elevator
-
-        //asks joel why this doesn't work if it's in the constructor
-        //just leave it here for now, i think its a weird observer issue or something idk ask joel
-        if(at_start){
-            sensor_HashMap.get(0).set_triggered(true);
-            sensor_HashMap.get(1).set_triggered(true);
-            at_start=false;
-
-        }
-
-
-        double y_pos_bottom = elevator.getY_position();
-        double y_pos_top = elevator.upper_bound();
-
-        // Update sensors based on position and direction
-        switch (direction){
-            case UP:
-
-                // TODO: check this
-                int sensor_above_idx = top_idx + 1;
-                // Top sensor
-
-                if (sensor_above_idx <= MAX_SENSOR_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
-                    // Turn sensor above on
-                    sensor_HashMap.get(sensor_above_idx).set_triggered(true);
-                    //System.out.println("Elevator is at: "+y_pos_top+ "sensor is at: "+ sensor_pos_Map.get(sensor_above_idx));
-
-                    // Turn bottom sensor off, if not already off
-                    if(bottom_idx!=-1){
-                        sensor_HashMap.get(bottom_idx).set_triggered(false);
-                        //System.out.println("turning off bottom sensor at Sensor: "+bottom_idx+" Elevator is at : "+y_pos_bottom);
-                    }
-
-                    // Update bottom and top floor indices
-                    bottom_idx = top_idx;
-                    top_idx = sensor_above_idx;
-                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
-                        // snap into place
-                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
-                    }
-
-                // bottom sensor untriggered
-                } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) < y_pos_bottom){
-                    // Turn off bottom sensor
-                    //System.out.println("2 if: sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
-                    sensor_HashMap.get(bottom_idx).set_triggered(false);
-
-                    //set bottom id to none selected
-                    bottom_idx =-1;
-
-                }
-                break;
-            case DOWN:
-
-                int sensor_bellow_idx= bottom_idx-1;
-                if(sensor_bellow_idx>=0&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
-                    //top sensor untriggered
-
-                    sensor_HashMap.get(sensor_bellow_idx).set_triggered(true);
-
-                    // Turn top sensor off, if not already off
-                    if(top_idx!=-1){
-                        sensor_HashMap.get(top_idx).set_triggered(false);
-                    }
-
-                    //update triggered floor positions
-                    top_idx=bottom_idx;
-                    bottom_idx=sensor_bellow_idx;
-                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
-                        // snap into place
-                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
-                    }
-
-                } else if (top_idx!=-1&& sensor_pos_Map.get(top_idx)>y_pos_top) {
-                    // turn off top sensor
-                    sensor_HashMap.get(top_idx).set_triggered(true);
-                    top_idx=-1;
-                }
-            default:
-                // Elevator not moving
-
-        }
-
-//        for (int i: sensor_HashMap.keySet()){
-//            if(i>elevator.getY_position() && i < elevator.upper_bound()){
-//                sensor_HashMap.get(i).set_triggered(true);
-//            }else {
-//                sensor_HashMap.get(i).set_triggered(false);
-//            }
+//        if(motor.is_off()&&bottom>=0){
+//            elevator.set_y_position(bottom);
 //        }
+
     }
+
+
+
+
 
     /**
      * @param floor_indicator 0 is bottom of first floor, 1 is top of first
@@ -392,7 +235,7 @@ public class MotionSimulation implements Runnable, Observer {
     }
 
     public void start(){
-        at_start=false;
+//        at_start=false;
         motor.start();
         if(direction.equals(Direction.UP)){
             accelerating_indicator=1;
@@ -404,11 +247,6 @@ public class MotionSimulation implements Runnable, Observer {
 
     }
 
-    public void stopAt_next_floor(){
-        //next bottom sensor, further that 1.5 meters away
-
-
-    }
     //TODO: remove this when we implement the software bus
     public void setDirection(Direction direction){
         this.direction=direction;
@@ -423,6 +261,7 @@ public class MotionSimulation implements Runnable, Observer {
     public void update(Observable viewee) {
         Motor beloved = ((Motor) viewee);
         if (viewee instanceof Motor) {
+            System.out.println("Motion sim being updated");
             if (beloved.is_off()) {
                 accelerating_indicator = 0;
                 direction = null;
@@ -441,7 +280,158 @@ public class MotionSimulation implements Runnable, Observer {
         }
     }
 
-//    public static void main(String[] args) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void tick(double cycle_time) {
+        if (accelerating_indicator != 0) {
+
+            current_speed += Constants.ACCELERATION * cycle_time * accelerating_indicator;
+        } else {
+            //no acceleration go towards zero, so this is sorta a janky reuse of accleration indicator
+
+            if (current_speed != 0.0) {
+                double steppre = Constants.ACCELERATION * cycle_time * Math.signum(current_speed); //get the sig nif number of the current speed
+                if (Math.abs(steppre) >= Math.abs(current_speed)) {
+                    current_speed = 0.0;
+                } else {
+                    current_speed -= steppre;
+                }
+            }
+        }
+
+        //goes to max speed negative or positive account for going over so we
+        // don't have to worry about rounding
+        if (Math.abs(current_speed) > Constants.MAX_SPEED) {
+            current_speed = Math.copySign(Constants.MAX_SPEED, current_speed);
+        }
+
+        //positive->up, negative-> down
+        if (current_speed != 0.0) {
+            double delta_Y = current_speed * cycle_time;
+            //tell obsetcvers
+            elevator.set_y_position(elevator.getY_position() + delta_Y);
+        } else {
+            //If we've come to a full stop and previously were decelerating, reset indicator
+            if (accelerating_indicator < 0) {
+
+                accelerating_indicator = 0;
+            }
+        }
+    }
+
+    /**
+     * Update all the sensor objects, whether they are triggered or not
+     * At most two sensors on at any time, use the position of the elevator
+     * to set the sensors.
+     */
+    private void update_sensors2(){
+        // Get the positions of the elevator
+
+        //asks joel why this doesn't work if it's in the constructor
+        //just leave it here for now, i think its a weird observer issue or something idk ask joel
+//        if(at_start){
+//            sensor_HashMap.get(0).set_triggered(true);
+//            sensor_HashMap.get(1).set_triggered(true);
+//            at_start=false;
 //
-//    }
+//        }
+
+
+        double y_pos_bottom = elevator.getY_position();
+        double y_pos_top = elevator.upper_bound();
+
+        // Update sensors based on position and direction
+        switch (direction){
+            case UP:
+
+                // TODO: check this
+                int sensor_above_idx = top_idx + 1;
+                // Top sensor
+
+                if (sensor_above_idx <= MAX_SENSOR_IDX && y_pos_top > sensor_pos_Map.get(sensor_above_idx)){
+                    // Turn sensor above on
+                    sensor_HashMap.get(sensor_above_idx).set_triggered(true);
+                    //System.out.println("Elevator is at: "+y_pos_top+ "sensor is at: "+ sensor_pos_Map.get(sensor_above_idx));
+
+                    // Turn bottom sensor off, if not already off
+                    if(bottom_idx!=-1){
+                        sensor_HashMap.get(bottom_idx).set_triggered(false);
+                        //System.out.println("turning off bottom sensor at Sensor: "+bottom_idx+" Elevator is at : "+y_pos_bottom);
+                    }
+
+                    // Update bottom and top floor indices
+                    bottom_idx = top_idx;
+                    top_idx = sensor_above_idx;
+                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
+                        // snap into place
+                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
+                    }
+
+                    // bottom sensor untriggered
+                } else if (bottom_idx!=-1 && sensor_pos_Map.get(bottom_idx) < y_pos_bottom){
+                    // Turn off bottom sensor
+                    //System.out.println("2 if: sensor :"+sensor_pos_Map.get(bottom_idx)+" > bottom: "+y_pos_bottom);
+                    sensor_HashMap.get(bottom_idx).set_triggered(false);
+
+                    //set bottom id to none selected
+                    bottom_idx =-1;
+
+                }
+                break;
+            case DOWN:
+
+                int sensor_bellow_idx= bottom_idx-1;
+                if(sensor_bellow_idx>=0&&y_pos_bottom<sensor_pos_Map.get(sensor_bellow_idx)){
+                    //top sensor untriggered
+
+                    sensor_HashMap.get(sensor_bellow_idx).set_triggered(true);
+
+                    // Turn top sensor off, if not already off
+                    if(top_idx!=-1){
+                        sensor_HashMap.get(top_idx).set_triggered(false);
+                    }
+
+                    //update triggered floor positions
+                    top_idx=bottom_idx;
+                    bottom_idx=sensor_bellow_idx;
+                    if (motor.is_off() && top_idx != -1 && bottom_idx != -1) {
+                        // snap into place
+                        elevator.set_y_position(sensor_pos_Map.get(bottom_idx));
+                    }
+
+                } else if (top_idx!=-1&& sensor_pos_Map.get(top_idx)>y_pos_top) {
+                    // turn off top sensor
+                    sensor_HashMap.get(top_idx).set_triggered(true);
+                    top_idx=-1;
+                }
+            default:
+                // Elevator not moving
+
+        }
+
+//        for (int i: sensor_HashMap.keySet()){
+//            if(i>elevator.getY_position() && i < elevator.upper_bound()){
+//                sensor_HashMap.get(i).set_triggered(true);
+//            }else {
+//                sensor_HashMap.get(i).set_triggered(false);
+//            }
+//        }
+    }
 }
